@@ -105,6 +105,8 @@
     const inputs = document.querySelectorAll('input');
     inputs.forEach((input) => {
       input.addEventListener('input', () => {
+        // if input has attribute dead stop
+        if (input.hasAttribute('data-dead')) return;
         caller();
       });
     });
@@ -179,8 +181,10 @@
   $: totalTimeWithEfficiencyInHours = (totalTimeWithEfficiency - interruptionsTime) / 60;
 
   let readyParts = Number(localStorage.getItem(`readyParts-${schedule.id}`)) || 1;
+  let desiredEfficiency = Number(localStorage.getItem(`desiredEfficiency-${schedule.id}`)) || 1;
 
   $: localStorage.setItem(`readyParts-${schedule.id}`, readyParts.toString());
+  $: localStorage.setItem(`desiredEfficiency-${schedule.id}`, desiredEfficiency.toString());
 
   const elapsedTime =
     new Date().getTime() - new Date(schedule.startDate).getTime() + stage.setupDuration * 60 * 1000;
@@ -194,7 +198,10 @@
       timePerPartInMilliseconds) /
     secondaryEfficiency;
 
-  $: console.log({ elapsedTime, secondaryEfficiency, interruptionsTime });
+  $: remainingPartsTimeWithDesiredEfficiencyInMilliseconds =
+    (((schedule.processQuantity - readyParts) / stage.numberOfOutputParts) *
+      timePerPartInMilliseconds) /
+    desiredEfficiency;
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -406,6 +413,30 @@
           <span class="bg-gray-100 rounded px-2 py-0.5"
             >{new Date(
               new Date().getTime() + remainingPartsTimeWithSecondaryEfficiencyInMilliseconds
+            ).toLocaleDateString('fa-IR', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}</span
+          >
+        </div>
+        <div class="flex gap-2 items-center text-[10px]">
+          <span>بازدهی دلخواه : </span>
+          <input
+            class="border w-20 pr-2 py-0.5 rounded-md border-dashed"
+            bind:value={desiredEfficiency}
+            data-dead
+            type="number"
+            min="0"
+            max="1"
+            step="0.1"
+          />
+          <span>زمان پایان براساس بازدهی دلخواه : </span>
+          <span class="bg-gray-100 rounded px-2 py-0.5"
+            >{new Date(
+              new Date().getTime() + remainingPartsTimeWithDesiredEfficiencyInMilliseconds
             ).toLocaleDateString('fa-IR', {
               year: 'numeric',
               month: 'long',
