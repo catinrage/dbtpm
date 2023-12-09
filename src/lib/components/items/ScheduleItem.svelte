@@ -185,10 +185,14 @@
   const elapsedTime =
     new Date().getTime() - new Date(schedule.startDate).getTime() + stage.setupDuration * 60 * 1000;
 
-  $: secondaryEfficiency = (readyParts * timePerPartInMilliseconds) / elapsedTime;
+  $: secondaryEfficiency =
+    ((readyParts / stage.numberOfOutputParts) * timePerPartInMilliseconds) /
+    (elapsedTime - interruptionsTime * 60 * 1000);
   $: secondaryEfficiencyInPercentage = Math.round(secondaryEfficiency * 100);
   $: remainingPartsTimeWithSecondaryEfficiencyInMilliseconds =
-    ((schedule.processQuantity - readyParts) * timePerPartInMilliseconds) / secondaryEfficiency;
+    (((schedule.processQuantity - readyParts) / stage.numberOfOutputParts) *
+      timePerPartInMilliseconds) /
+    secondaryEfficiency;
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
