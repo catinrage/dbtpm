@@ -193,6 +193,8 @@
     (((schedule.processQuantity - readyParts) / stage.numberOfOutputParts) *
       timePerPartInMilliseconds) /
     secondaryEfficiency;
+
+  $: console.log({ elapsedTime, secondaryEfficiency, interruptionsTime });
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
